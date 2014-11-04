@@ -34,11 +34,9 @@ More specifically, I wanted to know:
 Additionally, I wanted a way to quickly visualize the result before I started. In other words, the code needed to include a rendering component that would approximate what the finished result would look like. 
 
 ####Tools
-For the visualization piece, it seemed to be a no-brainer to use [D3.js](http://d3js.org/). It's familiar, sexy, popular--what else would you look for in a library? 
+As I wanted to visualize the output, I figured a HTML5 canvas would probably work well. Rendering with d3.js is a (maybe sexier) alternative, but the canvas option is simpler and often simplier approaches work better. As far as image processing is concerned, we don't really need any fancy Imagemagick library wrappers. We just need something to convert the image to an array of RGB values, and there is a [HTML5 Canvas getImageData method](https://html.spec.whatwg.org/multipage/scripting.html#dom-context-2d-getimagedata) that does exactly that.  Given the fact that HTML5 Canvas can do a lot of work for us, Javascript seems to be the logical choice for figuring out which lines to draw. 
 
-For the processing piece, it seemed like there were more options. There are a couple libraries -- notably ImageMagick -- that offer options for image manipulation on the server side in Ruby, Python, Clojure, or whatever. For this project, however, all I needed to do was convert the image to an array of RGB elements and run some straightforward operations. It turns out there's an [HTML5 Canvas method getImageData](https://html.spec.whatwg.org/multipage/scripting.html#dom-context-2d-getimagedata) that does the RGB conversion for you.   So, if we can use HTML5 Canvas to get the image data, and want to render it with D3.js, it looks like we should just do everything else on the browser too. Go Go Javascript!
-
-####Naive approach
+####The naive approach
 
 I figured I would go with a simple, naive approach first then optimize later. Here's the pseudocode of what I came up with:
 
