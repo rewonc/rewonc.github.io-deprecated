@@ -35,15 +35,17 @@ var canvas = document.getElementById("canvas");
 
 //Set a maximum limit corresponding to what a human could draw in a couple weeks
 var MAX_LINES_DRAWN_PER_THREAD = 1500; 
+//Set the "stroke intensity"--on a scale of 0 to 255, how intensely red, green, or blue will each stroke be?
+var STROKE_INTENSITY = 64;
 
 var drawColor = function(color, countdown, next){
   if (countdown <= 0 ) return;
   var origin = next || Grid.getRandom(grid);
-  var line = RandomlyFindAValidNextPoint(grid, pixels);
+  var line = RandomlyFindAValidNextPoint(grid, pixels, STROKE_INTENSITY);
   if (typeof line === "number")  {
     addToGrid(line, grid);
-    renderNewLineOnCanvas(line, canvas);
-    decreasePixelsInPlace(line, pixels);
+    renderNewLineOnCanvas(line, canvas, STROKE_INTENSITY);
+    decreasePixelsInPlace(line, pixels, STROKE_INTENSITY);
     return drawColor(color, count - 1, line.end);    
   } else {
     return drawColor(color, count);
@@ -56,7 +58,7 @@ drawColor("blue", MAX_LINES_DRAWN_PER_THREAD);
 
 {% endhighlight %}
 
-[The repo with the fleshed-out, functional source code is available here](https://github.com/rewonc/nailsandthread) 
+[The repo with the functional source code is available here](https://github.com/rewonc/nailsandthread) 
 
 If you just skipped over the code, the basic gist is that it chooses a point on the grid at random for the origin, then randomly guesses another point until it finds one that is valid to draw. Once it finds a valid point, it sets that point as the origin and looks for another one to draw.  If it can't find a valid point, it chooses another one at random to be the origin.
 
@@ -77,17 +79,35 @@ Not bad for a totally random algorithm. I let it run for about 1-2 minutes befor
 
 * The average line length is short, meaning the algorithm often couldn't find a consistent line & often gave up and started anew.
 
+*The algorithm couldn't draw from the majority of the points on the graph because the graph is mostly black. This likely impacted performance.
+
 * It doesn't do too well around the edges. The feet, for example, look polygonal and and the fluffy edges aren't rendered so well. It looks like the square grid of nails doesn't map 1:1 to the contours of the dog. 
+
+* This is less noticeable, but it doesn't seem to handle the subtleties of shading in the dog. For example, the nose and eyes are somewhat complex but the algorithm treats them as open black gaps.
 
 Ok, that's a good list of stuff to begin improving.
 
 ##Second try
 ####Low-hanging fruit
 
-So one of the issues was that it didn't do too well around the edges. Quick fix: increase the number of nodes. Right now my initial graph was 30x54, which isn't such a high resolution. Let's double each side to 60x108 and see what that does.
+So as we didn't actually reach our number of successfully drawn lines, an easy way to draw more lines would be to just add more nodes and lighten the stroke on the lines. 
+
+//double the dimensions of our grid (4x more nodes)
+var grid = generateSimpleRectangularNailGrid({width: 60, height: 108});
+//Halve the strength of the stroke
+var STROKE_INTENSITY = 32;
+
+Here's the results from that (left: before, right: after).  This time, it easily drew ~4500 lines:
 
 ![Little doggy woggy]({{ site.url }}/img/doggy-1403.png)
-![High res doggy woggy]({{ site.url }}/img/doggy-doublegrid.png)
+![Higher res doggy woggy]({{ site.url }}/img/doggy-double-rendered.png)
+
+And the original subtraction:
+
+![Little doggy woggy]({{ site.url }}/img/doggy-src.png)
+![Higher res doggy woggy]({{ site.url }}/img/doggy-double.png)
+
+
 
 
 
