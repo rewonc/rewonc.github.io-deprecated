@@ -21,7 +21,7 @@ HTML5 Canvas actually has all the image processing methods we need:   [getImageD
 
 These are getters and setters for the ImageData property of the HTML canvas. They return an array that has the red, green, blue, and alpha (opacity) value for each pixel in the image. So you can pull the data, run some operations on it, then push back to the canvas to render.
 
-That really should be all we need. So we can do this whole thing in plain ol' Javascript and HTML5. 
+With that, we can do this whole thing in plain ol' Javascript and HTML5. 
 
 ##First approach
 
@@ -64,14 +64,14 @@ If you just skipped over the code, the basic gist is that it chooses a point on 
 
 Here's what this algorithm draws when applied to an image of... can you guess?
 
-####First try render
+###First try render
 ![Little doggy woggy]({{ site.url }}/img/doggy-1403.png)
 
 Did you guess... some kind of animal, wearing a bow? A puppy perhaps? Good job! Here's the source image showing the subtractions the algorithm has made from this ridiculously cute dog:
 
 ![Little doggy woggy source]({{site.url}}/img/doggysrc.png)
 
-Not bad for a totally random algorithm. I let it run for about 1-2 minutes before stopping it. (In the real code, I had it take a 0.5 second break after each set of lines so browser wouldnt kill the script, so its not 1-2 mins of straight computation). Here's my notes from the first pass:
+Not bad for a totally random algorithm. I let it run for about 1-2 minutes before stopping it. (In the real code, I had it take a 0.5 second break after each set of lines so browser wouldnt kill the script, so its not 1-2 mins of straight computation). Here's my notes on things to improve from the first pass:
 
 * It didn't actually complete. It only drew 1403 lines before I stopped it. The random search method drew lots of lines initially but slowed down around the ~1000 mark. (The cutoff I had specified in the code was 4500 lines) 
 
@@ -79,7 +79,7 @@ Not bad for a totally random algorithm. I let it run for about 1-2 minutes befor
 
 * The average line length is short, meaning the algorithm often couldn't find a consistent line & often gave up and started anew.
 
-*The algorithm couldn't draw from the majority of the points on the graph because the graph is mostly black. This likely impacted performance.
+* The algorithm couldn't draw from the majority of the points on the graph because the photo is mostly black. This likely resulted in many failed random line checks.
 
 * It doesn't do too well around the edges. The feet, for example, look polygonal and and the fluffy edges aren't rendered so well. It looks like the square grid of nails doesn't map 1:1 to the contours of the dog. 
 
@@ -88,14 +88,16 @@ Not bad for a totally random algorithm. I let it run for about 1-2 minutes befor
 Ok, that's a good list of stuff to begin improving.
 
 ##Second try
-####Low-hanging fruit
 
-So as we didn't actually reach our number of successfully drawn lines, an easy way to draw more lines would be to just add more nodes and lighten the stroke on the lines. 
+###Low-hanging fruit
 
+So as we didn't actually reach our target of successfully drawn lines, an easy way to improve the quality would be to add more nodes and lighten the stroke on the lines to get more lines drawn.
+{% highlight javascript %}
 //double the dimensions of our grid (4x more nodes)
 var grid = generateSimpleRectangularNailGrid({width: 60, height: 108});
 //Halve the strength of the stroke
 var STROKE_INTENSITY = 32;
+{% endhighlight %}
 
 Here's the results from that (left: before, right: after).  This time, it easily drew ~4500 lines:
 
@@ -104,8 +106,28 @@ Here's the results from that (left: before, right: after).  This time, it easily
 
 And the original subtraction:
 
-![Little doggy woggy]({{ site.url }}/img/doggy-src.png)
+![Little doggy woggy]({{ site.url }}/img/doggysrc.png)
 ![Higher res doggy woggy]({{ site.url }}/img/doggy-double.png)
+
+Ok, getting better. Now lets tackle a bigger problem.
+
+### Non-random guessing
+Looking at the profile of the photo in a program like [pixlr](http://apps.pixlr.com/editor/), you can see that a very large percentage of the pixels have intensities close to zero, and our algorithm is spending a lot of time guessing those pixels and checking if they work. 
+
+![pixlr img]({{ site.url }}/img/puppylvls.jpg)
+
+Additionally, the algorithm isn't spending time on the areas that need it. It draws a lot of additional lines in the body even though the marginal benefit of those lines are very low, and doesn't fill out areas in the feet that would make the whole thing look better.
+
+
+
+## Third try
+
+#### Real life modeling
+
+#### Semi-random, organic node placement
+
+#### Averaging over pixel groups
+
 
 
 
