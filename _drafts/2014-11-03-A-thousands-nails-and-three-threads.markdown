@@ -5,38 +5,35 @@ date:   2014-11-03 07:05:06
 categories: update
 ---
 
-Some time ago I came across the "Constellation" pieces by artist Kumi Yamashita. In case you haven't seen them, you can look at them at her [online gallery](http://www.kumiyamashita.com/constellation/). The portraits are marvelous to look at and incredibly intricate. It's wonderful how something so fluid and organic can emerge from simple mechanical components.
+Some time ago I came across the "Constellation" pieces by artist Kumi Yamashita. In case you haven't seen them, you can see them at her [online gallery](http://www.kumiyamashita.com/constellation/). She crafts the pieces with a white board, thousands of small nails, and one single unbroken sewing thread.  The portraits are marvelously intricate. It's wonderful how something so fluid and organic can emerge from three simple components.
 
-A couple weeks ago I was thinking about these portraits, and it just so happened that around the same time I had 1) been doing a fair amount of self study on graph transformation algorithms for a separate project and 2) had recently moved into a new loft apartment in Emeryville, CA with very bare, very large walls. As a way of challenging my understanding of the material I was learning and also furnishing my apartment, I asked myself--why not recreate something similar on my walls? I could just choose a photo to erect, write a small script to tell me the order I should weave, then get some nails and some thread and put it up. Sounds easy enough right?
+A couple weeks ago I was thinking about these portraits, and it just so happened that around the same time I had moved into a new loft apartment in Emeryville, CA with very bare, very large walls. As I was learning about some graph algorithms for a separate project, the idea struck me that I could write an algorithm that could calculate a path of lines and output instructions that, if followed, might allow me to craft something that approximated Yamashita's genius on my own walls. In other words, I could practice some computer science and furnish my apartment at the same time.
 
-As I was enlisting the help of a computer to do this all, moreover, I figured I'd add an extra challenge: make the portrait in color.  As images are often represented as maps of pixels with distinct values for their red, green, and blue values, I figured that with one red, one green, and one blue thread I ought to be able to render a full color portrait.  
+As I was enlisting the help of a computer, moreover, I figured I would spice up the challenge a bit. Why not try and recreate a portrait in color? So the challenge I put forth to myself was: given a few sewing threads of base colors, a white board, and a bunch of nails, construct a wall-sized color portrait a la Kumi Yamashita.
 
-I might as well spoil it for you--it wasn't as easy as I thought. It also took a lot longer than I thought. But I'm quite happy with the finished product:
+This seemed like a project that would turn out to be much harder than I originally anticipated, but I decided to do it anyway. This post details some of the methods and the algorithm I came up with. The actual construction of the piece will be in a following post. 
 
+##Specifications
 
+####Output
 
-I'll go into some detail about how this worked for anyone interested in doing a similar project.
-
-##The code
-
-####Specifications
-
-If you are someone like the original artist, you might be able to create a piece like this from intuition, perseverance, or raw artistic ability. I suffer from a lack of all three, and so I wanted to write a piece of code that would specify exactly what I had to do and when so I had to make no complicated judgments while making the portrait.  
+If you are someone like the original artist, you might be able to create a piece like this from intuition, perseverance, or raw artistic ability. I suffer from a lack of all three, and so I wanted to write a program that would specify exactly what I had to do so I had to make no artistic decisions while creating the piece.
 
 More specifically, I wanted to know:
 
 - How many nails should I use? Where should I put them?
 - How much string do I need to buy? What thickness?
 - Where should each thread begin, and what path does it take?
-- Does the order of placing the strings matter?
+- What order should I layer the strings?
 - How long is it going to take to put this together?
 
-Additionally, I wanted a way to quickly visualize the result before I started. In other words, the code needed to include a rendering component that would approximate what the finished result would look like. 
+Additionally, I wanted a way to quickly visualize the result before I started. In other words, the code needed to include a rendering component that would approximate what the finished result would look like, so I could quickly scrap it or go with something else before putting thread to board.
 
 ####Tools
-As I wanted to visualize the output, I figured a HTML5 canvas would probably work well. Rendering with d3.js is a (maybe sexier) alternative, but the canvas option is simpler and often simplier approaches work better. As far as image processing is concerned, we don't really need any fancy Imagemagick library wrappers. We just need something to convert the image to an array of RGB values, and there is a [HTML5 Canvas getImageData method](https://html.spec.whatwg.org/multipage/scripting.html#dom-context-2d-getimagedata) that does exactly that.  Given the fact that HTML5 Canvas can do a lot of work for us, Javascript seems to be the logical choice for figuring out which lines to draw. 
+Javascript & HTML5... because why not. 
+HTML5 Canvas actually has some very relevant image processing methods:   [getImageData](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#getImageData()) / [putImageData](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#putImageData())
 
-####The naive approach
+##First approach
 
 I figured I would go with a simple, naive approach first then optimize later. Here's the pseudocode of what I came up with:
 
@@ -50,7 +47,8 @@ and want to spend 30 minutes per day for 2 weeks. That means ~5000 lines maximum
 var MAX_LINES_DRAWN = 5000
 
 </code></pre>
-(The repo with all the real source code available here)
+
+(The repo with the [source code for all examples is available here](https://github.com/rewonc/nailsandthread) )
 
 
 ###The demo
