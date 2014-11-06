@@ -7,13 +7,13 @@ categories: update
 
 Some time ago I came across the "Constellation" pieces by artist Kumi Yamashita. They're awesome--check out her [online gallery](http://www.kumiyamashita.com/constellation/). Taking a white board, thousands of small nails, and a single sewing thread, she weaves marvelously intricate portraits of people around her. I find it amazing how she can turn a few simple componenet materials into something that seems so lifelike, organic, and real.
 
-It just so happens that a few weeks ago I moved into a big loft in Emeryville, CA. The ceilings are about 20 feet tall and cry out "Put art on me!"  If you have the kind of intuition, perseverance, and raw artistic ability that Yamashita has, these walls are probably a great opportunity to unleash your inner Picasso. I suffer from a lack of all of those things, however, and as I can't afford to buy anyone else's art either, I thought the walls would remain barren for my time here. So goes my dreams for calling it an _artist's loft_. 
+It just so happens that a few weeks ago I moved into a big loft in Emeryville, CA. The ceilings are about 20 feet tall and cry out "Put art on me!"  If you have the kind of intuition, perseverance, and raw artistic ability that Yamashita has, these walls are probably a great opportunity to unleash your inner Picasso. I suffer from a lack of all of those things, however, and as I can't afford to buy anyone else's art either, I thought the walls would remain barren for my time here. So went my dreams of calling it an _artist's loft_. 
 
-But after ruminating on it for some time, I realized, _I do know Javascript_.  And Javascript makes dreams come true. Perhaps, with a little bit of Javascripting, I could write something that would substitute for artistic talent, perseverance, and intuition and allow me to furnish my walls like a real artist would. 
+But after ruminating for some time, I realized, _I do know Javascript_.  And Javascript makes dreams come true. Perhaps, with a little bit of Javascripting, I could write something that would substitute for artistic talent, perseverance, and intuition and allow me to furnish my walls like a real artist would. 
 
 So that was my programming assignment for the last week. Create a script that would analyze an image and output instructions for recreating it in real life with nails and thread a la Yamashita. And also, why not do it in color, too?
 
-This seemed like a project that would turn out to be much harder than I originally anticipated, but I decided to do it anyway. This post details the algorithm I came up with. The physical construction of the piece will be detailed in following post. 
+This seemed like a project that would turn out to be much harder than I originally anticipated, but I decided to do it anyway. This post details the algorithm I came up with. The physical construction of the piece will be detailed in a following post. 
 
 ##Tools
 
@@ -25,7 +25,7 @@ That really should be all we need. So we can do this whole thing in plain ol' Ja
 
 ##First approach
 
-I figured I would first go with the simplest, naivest approach I could think of then optimize later. Here's the non-functional pseudocode of what I came up with:
+I figured I would first go with the simplest, most naive approach I could think of then optimize later. Here's the non-functional pseudocode of what I came up with:
 
 {% highlight javascript %}
 
@@ -71,9 +71,16 @@ Did you guess... some kind of animal, wearing a bow? A puppy perhaps? Good job! 
 
 Not bad for a totally random algorithm. I let it run for about 1-2 minutes before stopping it. (In the real code, I had it take a 0.5 second break after each set of lines so browser wouldnt kill the script, so its not 1-2 mins of straight computation). Here's whats interesting about this first pass:
 
-* It didn't actually complete. It only drew 1403 lines before I stopped it because it was just cycling many times without drawing. The cutoff was 4500 lines. 
+* It didn't actually complete. It only drew 1403 lines before I stopped it because the time it was taking to find a new line was pretty high. (The cutoff I had specified in the code was 4500 lines) 
 
-* The dog is still recognizable even with only 1403 lines. The original photo still looks, by and large, complete, meaning we probably don't need to draw all the image information to get a "good enough" representation. 
+* The dog is still recognizable even with only 1403 lines, which only represents a small fraction of the total image information. The original image still looks whole, for the most part. This means we like don't need to draw _all_ the image information to get a representation of the dog, we just need to draw the _right_ information
+
+* The average line length is short -- far from unbroken.
+
+* It doesn't do too well around the edges--for any sharply defined features, would be difficult to draw.
+
+
+
 
 
 ###The demo
