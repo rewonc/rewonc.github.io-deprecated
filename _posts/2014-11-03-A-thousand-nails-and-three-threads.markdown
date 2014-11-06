@@ -69,25 +69,25 @@ Did you guess... some kind of animal, wearing a bow? A puppy perhaps? Good job! 
 
 ![Little doggy woggy source]({{site.url}}/img/doggysrc.png)
 
-Not bad for a totally random algorithm. I let it run for about 1-2 minutes before stopping it. (In the real code, I had it take a 0.5 second break after each set of lines so browser wouldnt kill the script, so its not 1-2 mins of straight computation). Here's whats interesting about this first pass:
+Not bad for a totally random algorithm. I let it run for about 1-2 minutes before stopping it. (In the real code, I had it take a 0.5 second break after each set of lines so browser wouldnt kill the script, so its not 1-2 mins of straight computation). Here's my notes from the first pass:
 
-* It didn't actually complete. It only drew 1403 lines before I stopped it because the time it was taking to find a new line was pretty high. (The cutoff I had specified in the code was 4500 lines) 
+* It didn't actually complete. It only drew 1403 lines before I stopped it. The random search method drew lots of lines initially but slowed down around the ~1000 mark. (The cutoff I had specified in the code was 4500 lines) 
 
-* The dog is still recognizable even with only 1403 lines, which only represents a small fraction of the total image information. The original image still looks whole, for the most part. This means we like don't need to draw _all_ the image information to get a representation of the dog, we just need to draw the _right_ information
+* Even though there's only 1403 lines, which represents a tiny fraction of the information in the image, the dog is still recognizable for the most part. This means we probably don't need to draw _all_ the image information to get a good enough representation of it.
 
-* The average line length is short -- far from unbroken.
+* The average line length is short, meaning the algorithm often couldn't find a consistent line & often gave up and started anew.
 
-* It doesn't do too well around the edges--for any sharply defined features, would be difficult to draw.
+* It doesn't do too well around the edges. The feet, for example, look polygonal and and the fluffy edges aren't rendered so well. It looks like the square grid of nails doesn't map 1:1 to the contours of the dog. 
+
+Ok, that's a good list of stuff to begin improving.
+
+##Second try
+####Low-hanging fruit
+
+So one of the issues was that it didn't do too well around the edges. Quick fix: increase the number of nodes. Right now my initial graph was 30x54, which isn't such a high resolution. Let's double each side to 60x108 and see what that does.
+
+![Little doggy woggy]({{ site.url }}/img/doggy-1403.png)
+![High res doggy woggy]({{ site.url }}/img/doggy-doublegrid.png)
 
 
-
-
-
-###The demo
-
-###The supplies
-
-###The timeline
-
-###The finished product
 
