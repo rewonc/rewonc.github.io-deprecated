@@ -25,7 +25,7 @@ That really should be all we need. So we can do this whole thing in plain ol' Ja
 
 ##First approach
 
-I figured I would go with a simple, naive approach first then optimize later. Here's the non-functional pseudocode of what I came up with:
+I figured I would first go with the simplest, naivest approach I could think of then optimize later. Here's the non-functional pseudocode of what I came up with:
 
 {% highlight javascript %}
 
@@ -65,6 +65,15 @@ Here's what this algorithm draws when applied to an image of... can you guess?
 ####First try render
 ![Little doggy woggy]({{ site.url }}/img/doggy-1403.png)
 
+Did you guess... some kind of animal, wearing a bow? A puppy perhaps? Good job! Here's the source image showing the subtractions the algorithm has made from this ridiculously cute dog:
+
+![Little doggy woggy source]({{site.url}}/img/doggysrc.png)
+
+Not bad for a totally random algorithm. I let it run for about 1-2 minutes before stopping it. (In the real code, I had it take a 0.5 second break after each set of lines so browser wouldnt kill the script, so its not 1-2 mins of straight computation). Here's whats interesting about this first pass:
+
+* It didn't actually complete. It only drew 1403 lines before I stopped it because it was just cycling many times without drawing. The cutoff was 4500 lines. 
+
+* The dog is still recognizable even with only 1403 lines. The original photo still looks, by and large, complete, meaning we probably don't need to draw all the image information to get a "good enough" representation. 
 
 
 ###The demo
