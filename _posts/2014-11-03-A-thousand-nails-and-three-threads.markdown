@@ -104,29 +104,19 @@ Here's the results from that (left: before, right: after).  This time, it easily
 ![Little doggy woggy]({{ site.url }}/img/doggy-1403.png)
 ![Higher res doggy woggy]({{ site.url }}/img/doggy-double-rendered.png)
 
-And the original subtraction:
-
-![Little doggy woggy]({{ site.url }}/img/doggysrc.png)
-![Higher res doggy woggy]({{ site.url }}/img/doggy-double.png)
-
 Ok, getting better. Now lets tackle a bigger problem.
 
 ### Non-random guessing
-Looking at the profile of the photo in a program like [pixlr](http://apps.pixlr.com/editor/), you can see that a very large percentage of the pixels have intensities close to zero, and our algorithm is spending a lot of time guessing those pixels and checking if they work. 
+Looking at the profile of the photo in a program like [pixlr](http://apps.pixlr.com/editor/), you can see that a very large percentage of the pixels have intensities close to zero. Our algorithm is spending a lot of time guessing those pixels and checking if they work. 
 
 ![pixlr img]({{ site.url }}/img/puppylvls.jpg)
 
-Additionally, the algorithm isn't spending time on the areas that need it. It draws a lot of additional lines in the body even though the marginal benefit of those lines are very low, and doesn't fill out areas in the feet that would make the whole thing look better.
+Additionally, even though the algorithm is randomly guessing start and end points, it doesn't mean that all lines have an equally likely chance of being drawn. Any sections that are closer to dark patches (the edges of the dog) will rarely be drawn because the probability of both the start and end points being adjacent to the edge is slim. Similarly, any "peninsulas" into dark areas like the feet will draw less frequently as there is only a small subset of pixels that are valid endpoints. Small islands, like the shiny points on the dog's eyes, will be drawn only once in a blue mon.  
 
-An additional business need is that when making it, I'd prefer to have longer lines than shorter lines. Less instructions = less overhead and easier to make. 
-
-So let's change the random guess to a scanning algorithm that quickly checks the farthest nodes first to see if they're valid. If the node is valid, then check the line underneath to see if it can be connected. This should speed up our program significantly, give us longer lines, and prioritize the edges of the photo. 
-
-Here's the pseudocode:
+So let's ditch the random selection (even though it got us a fairly decent picture) and try something else. My idea: choose a random point to start. Survey the pixels around the point and choose the brightest one. Walk in that direction, following the brightest pixels, and try and find a node. Here's the pseudocode:
 
 
-Here's the result:
-
+And here's the result: 
 
 
 ###In the next installment:
@@ -136,6 +126,8 @@ Here's the result:
 - Semi-random, organic node placement
 
 - Averaging over pixel groups
+
+- Constructing it in real life 
 
 
 
