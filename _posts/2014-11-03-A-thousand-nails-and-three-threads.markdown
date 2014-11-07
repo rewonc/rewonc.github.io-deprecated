@@ -118,15 +118,25 @@ Looking at the profile of the photo in a program like [pixlr](http://apps.pixlr.
 
 Additionally, the algorithm isn't spending time on the areas that need it. It draws a lot of additional lines in the body even though the marginal benefit of those lines are very low, and doesn't fill out areas in the feet that would make the whole thing look better.
 
+An additional business need is that when making it, I'd prefer to have longer lines than shorter lines. Less instructions = less overhead and easier to make. 
+
+So let's change the random guess to a scanning algorithm that quickly checks the farthest nodes first to see if they're valid. If the node is valid, then check the line underneath to see if it can be connected. This should speed up our program significantly, give us longer lines, and prioritize the edges of the photo. 
+
+Here's the pseudocode:
 
 
-## Third try
+Here's the result:
 
-#### Real life modeling
 
-#### Semi-random, organic node placement
 
-#### Averaging over pixel groups
+###In the next installment:
+
+- Turning this into an accurate representation of a physical canvas
+
+- Semi-random, organic node placement
+
+- Averaging over pixel groups
+
 
 
 
