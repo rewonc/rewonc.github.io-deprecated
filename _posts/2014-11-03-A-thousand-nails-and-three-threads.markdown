@@ -119,11 +119,21 @@ else                    { /* Start over */}
 
 Here's what we get from doing that. 
 
+Radius 1 & 2:
+
 ![Little doggy woggy]({{ site.url }}/img/angle1.png)
 ![Little doggy woggy]({{ site.url }}/img/angle2.png)
+
+Radius 3 & 5:
+
 ![Little doggy woggy]({{ site.url }}/img/angle3.png)
 ![Little doggy woggy]({{ site.url }}/img/angle5.png)
+
+Maximum radius (sampling only the points that are farthest away) & random radius (weighted to a power curve so lower values appear much more frequently)
+
 ![Little doggy woggy]({{ site.url }}/img/anglemax.png)
+
+Kind of neat!  As it turns out, in our square grid of nails changing the sampling radius changes the 
 
 ### Increasing line connectivity
 
