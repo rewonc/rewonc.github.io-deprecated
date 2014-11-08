@@ -19,7 +19,7 @@ This seemed like a project that would turn out to be much harder than I original
 
 HTML5 Canvas actually has a couple very useful methods for us:   [getImageData]( https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#getImageData ) and [putImageData](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#putImageData )
 
-These are getters and setters for the ImageData property of the HTML canvas. They return an array that has the red, green, blue, and alpha (opacity) value for each pixel in the image. This allows us to create a model of the image as an array and run any operations we might want on it (for example, drawing a thread), then push it back to the canvas to render. Sounds like just what we need to complement our plain ol Javascript toolkit.
+These are getters and setters for the ImageData property of the HTML canvas. They return an array that has the red, green, blue, and alpha (opacity) value for each pixel in the image. This allows us to create a model of the image as an array and run any operations we might want on it (for example, drawing a thread), then push it back to the canvas to render. Sounds like just what we need to complement our plain ol' Javascript toolkit.
 
 ##First approach
 
@@ -56,7 +56,7 @@ drawColor("blue", MAX_LINES_DRAWN_PER_THREAD);
 
 {% endhighlight %}
 
-[The repo with the functional source code is available here](https://github.com/rewonc/nailsandthread) 
+[The repo with the functional source code for the entire project is available here](https://github.com/rewonc/nailsandthread) 
 
 If you just skipped over the code, the basic gist is that it chooses a point on the grid at random for the origin, then randomly guesses another point until it finds one that is valid to draw. Once it finds a valid point, it draws a line to that point, then repeats. If it can't find a valid point, it chooses another one at random.
 
@@ -71,13 +71,13 @@ Did you guess... some kind of animal, wearing a bow? A puppy perhaps? Good job! 
 
 ![Little doggy woggy source]({{site.url}}/img/doggysrc.png)
 
-Not bad for a totally random algorithm. I let it run for about 1-2 minutes before stopping it. (In the real code, I had it take a 0.5 second break after each set of lines so browser wouldnt kill the script, so its not 1-2 mins of straight computation). Here's some things I learned from implementing this simple algorithm:
+Not bad for a totally random algorithm. I let it run for about a minute or two before stopping it. Here's some things I learned from implementing this simple algorithm:
 
-* It didn't actually complete. It only drew 1403 lines before I stopped it. The random search method drew lots of lines initially but slowed down around the ~1000 mark, suggesting that I could likely improve the sampling function. 
+* It didn't actually complete. It only drew 1403 lines before I stopped it. The random search method drew lots of lines initially but slowed down around the ~1000 mark. As it only did ~1400 lines in about a minute, I'd say we have quite a few optimizations we could make.
 
 * Even though there's only 1403 lines, which represents a tiny fraction of the information in the image, the dog is still recognizable for the most part. This means we probably don't need to draw _all_ the image information to get a good enough representation of it.
 
-* It doesn't do too well around the edges. The feet, for example, look polygonal and and the fluffy edges aren't rendered so well. It looks like the square grid of nails doesn't map 1:1 to the contours of the dog. 
+* It looks pretty polygonal, and it doesn't seem to do very well with edges. 
 
 Ok, that's a good list of stuff to begin improving.
 
@@ -97,12 +97,12 @@ var STROKE_INTENSITY = 32;
 {% endhighlight %}
 
 
-Here's the results from that (left: before, right: after).  This time, it easily drew ~4500 lines:
+Here's the results from that (**left**: before, **right**: after).  This time, it easily drew ~4500 lines:
 
 ![Little doggy woggy]({{ site.url }}/img/doggy-1403.png)
 ![Higher res doggy woggy]({{ site.url }}/img/doggy-double-rendered.png)
 
-Ok, getting better, although now it looks like the result of a kid scribbing with crayons. Oh well, let's move on, keeping in mind that we now can adjust the number of nodes and stroke intensity to adjust the quantity of lines drawn. 
+Ok, getting better, although now it looks like some kid scribbled with crayons all over the paper. Oh well, let's move on, keeping in mind that we now can adjust the number of nodes and stroke intensity to adjust the quantity of lines drawn. 
 
 ### Manipulating the angle of lines drawn
 Compared with [Yamashita's originals](http://www.kumiyamashita.com/constellation/), the average line length in our current portrait is long.  Yamashita generally seems to pass the thread between adjacent nodes rather than across the grid. When we sample for points, however, we're choosing the whole range of points and often get long lines that traverse the picture and make it look "scribbly." Let's see if we can't adjust that:
@@ -119,23 +119,23 @@ else                    { /* Start over */}
 
 Here's what we get from sampling from a variable radius:
 
-Radius 1 & 2:
+Radius **1** & **2**:
 
 ![Little doggy woggy]({{ site.url }}/img/angle1.png)
 ![Little doggy woggy]({{ site.url }}/img/angle2.png)
 
-Radius 3 & 5:
+Radius **3** & **5**:
 
 ![Little doggy woggy]({{ site.url }}/img/angle3.png)
 ![Little doggy woggy]({{ site.url }}/img/angle5.png)
 
-Maximum radius (sampling only the points that are farthest away) & random radius (weighted to a power curve so lower values appear much more frequently)
+**Maximum radius** (sampling only the points that are farthest away) & **random radius** (weighted to a power curve so lower values appear much more frequently)
 
 ![Little doggy woggy]({{ site.url }}/img/anglemax.png)
 ![Little doggy woggy]({{ site.url }}/img/anglerandom.png)
 
 
-Kind of neat!  It turns out that in our square grid of nails, changing the sampling radius changes the angle of all possible values that can be drawn. In a radius of 1, for example, we see only straight lines and 45 degree angles, and the result almost looks like a mosaic. In the max radius, you get hundreds of slightly different angles that make the dog look kind of spooky or phantasmic. It seems like somewhere in the middle is a nice balance between long & short lines and angle consistency and diversity.
+Kind of neat!  It turns out that in our square grid of nails, changing the sampling radius changes the angle of all possible values that can be drawn. In a radius of 1, for example, we see only straight lines and 45 degree angles, and the result almost looks like a mosaic. In the max radius, you get hundreds of slightly different angles that make the dog look kind of spooky or phantasmic. It seems like somewhere in the middle is a nice balance between 1) long & short lines and 2) angle consistency and diversity.
 
 ### Increasing line connectivity
 
@@ -145,30 +145,41 @@ Take a look at the above renderings and see if you can figure out why this happe
 
 Did you find it?
 
-It turns out the brightest points are the nodes themselves, which make sense. If 5 lines share a node and are drawn with intensity of red 30, the node will have intensity of red 150.  What this means for our algorithm is that nodes are peaking out early--once a couple lines are drawn from a node, the pixel under the node itself will register as being fully drawn and no lines will be able to be drawn from that node anymore. This occurs even if there are many good lines around the node waiting to be drawn. This is easy to solve: we just change the "decreasePixelsInPlace" function to only decrease the pixels _between_ nodes. The result changes instantly:
+It turns out the brightest points are the nodes themselves, which make sense. If 5 lines share a node and are drawn with intensity of red 30, the node will have intensity of red 150.  What this means for our algorithm is that nodes are peaking out and returning "false" early. This forces our algorithm to begin a totally new line even if many more lines might be able to be drawn from that node. As a result, it needs to spend extra cycles calculating a random start (expensive) & there appears an ugly disconnected stroke on the rendering. 
 
-Left: Weighted random radius and same settings as before.  Right: Weighted random radius and original (sparse) grid.
+This is easy to solve: we just change the "decreasePixelsInPlace" function to only decrease the pixels _between_ nodes. The result changes instantly:
+
+**Left**: Same settings with the "random radius" function.  **Right**: Weighted random radius and original (sparse) grid.
 
 ![Little doggy woggy]({{ site.url }}/img/connected-dense.png)
 ![Little doggy woggy]({{ site.url }}/img/connected-sparse.png)
 
-Sweet! This tiny change makes the algorithm effectively fill out most of the edges of the graph and give it a very smooth appearance. We can even use our smaller grid from before and still have a very cohesive portrait of the dog.   
+Sweet! This tiny change makes the algorithm effectively fill out most of the edges of the graph and give it a very smooth appearance. We can even use our smaller grid from before and still have a very cohesive portrait of the dog. 
 
-Another cool thing is that this small fix sped up the algorithm considerably as well--these render in 2-3 seconds as opposed to the 30+ seconds it was taking before!
+Another cool thing is that this small fix sped up the algorithm considerably as well--these render in 2-3 seconds as opposed to the ~minute it was taking before!
 
-
-
-###In the next installment:
-
-- Turning this into an accurate representation of a physical canvas
-
-- Semi-random, organic node placement
-
-- Averaging over pixel groups
-
-- Constructing it in real life 
+### More tinkering
 
 
+
+
+### In the next installment:
+
+At this point, I think the algorithm is good enough to give a first shot on a canvas at my home. That's what I cover in the next installment:
+
+- Adjusting from RGB to real life conditions
+
+- Estimating stroke intensities and color profiles of real strings
+
+- Constructing an appropriate canvas, and...
+
+- The finished product. (I use a different img than this puppy :)  )
+
+### Next directions for the algorithm
+
+There's a whole slew of other interesting directions to take the algorithm.  Right now we're just using a simple rectangular grid to hold our lines. That's easy to model in code and also easy to replicate on a physical canvas.  But a more sophisticated algorithm might get even closer to the quality that Yamashita was able to produce by having the grid adjust to the image itself. For example, having the algorithm analyze the local maxima & minima of the image through gradient descent or other methods might yield a way to have the nails sit on the points of starkest contrast. In Yamashita's examples, she places the nails on a line that edge the face; in our doggy example, it might be worthwhile to have the nails trace the edge of the fur.
+
+I'll explore this and a few other topics in a later post, but if you have any thoughts on either of these, [let me know](mailto:rewonc@gmail.com)!
 
 
 
