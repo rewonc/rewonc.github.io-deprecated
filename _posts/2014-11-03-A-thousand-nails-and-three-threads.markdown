@@ -105,10 +105,10 @@ Here's the results from that (left: before, right: after).  This time, it easily
 Ok, getting better, although now it looks like the result of a kid scribbing with crayons. Oh well, let's move on, keeping in mind that we now can adjust the number of nodes and stroke intensity to adjust the quantity of lines drawn. 
 
 ### Manipulating the angle of lines drawn
-Compared with [Yamashita's originals](http://www.kumiyamashita.com/constellation/), the average line length in our current portrait is long.  Yamashita generally seems to pass the thread between adjacent nodes rather than across the grid. When we sample for points across the entire grid, we end up getting a lot of long lines that go across a long part of the grid and result in a "scribbled" look. Let's see if we can't adjust that:
+Compared with [Yamashita's originals](http://www.kumiyamashita.com/constellation/), the average line length in our current portrait is long.  Yamashita generally seems to pass the thread between adjacent nodes rather than across the grid. When we sample for points, however, we're choosing the whole range of points and often get long lines that traverse the picture and make it look "scribbly." Let's see if we can't adjust that:
 
 {% highlight javascript %}
-//radius refers to the maximum of nodes you will sample. 
+//radius refers to the maximum distance of nodes you will sample from the origin. 
 //For example, putting 1 for a node in the middle of a grid will return the 9 nodes surrounding it.
 var radius = 1;
 var list = findNodesAdjacentTo(origin, grid, radius, color);
@@ -117,7 +117,7 @@ if (next !== undefined) { /* draw & recur */ }
 else                    { /* Start over */}
 {% endhighlight %}
 
-Here's what we get from doing that. 
+Here's what we get from sampling from a variable radius:
 
 Radius 1 & 2:
 
@@ -132,17 +132,30 @@ Radius 3 & 5:
 Maximum radius (sampling only the points that are farthest away) & random radius (weighted to a power curve so lower values appear much more frequently)
 
 ![Little doggy woggy]({{ site.url }}/img/anglemax.png)
+![Little doggy woggy]({{ site.url }}/img/anglerandom.png)
 
-Kind of neat!  As it turns out, in our square grid of nails changing the sampling radius changes the 
+
+Kind of neat!  It turns out that in our square grid of nails, changing the sampling radius changes the angle of all possible values that can be drawn. In a radius of 1, for example, we see only straight lines and 45 degree angles, and the result almost looks like a mosaic. In the max radius, you get hundreds of slightly different angles that make the dog look kind of spooky or phantasmic. It seems like somewhere in the middle is a nice balance between long & short lines and angle consistency and diversity.
 
 ### Increasing line connectivity
 
-{% highlight javascript %}
-var x = 0;
-{% endhighlight %}
+One thing you might notice about the above lines is that they are often unconnected. In other words, often times the algorithm will fail to find a valid next point and start a new random thread instead of continuing the old one. This results in many one-off lines and abrupt endings, which impact the clarity of the image.
 
+Take a look at the above renderings and see if you can figure out why this happens. It's very subtle. (Hint: try looking for the brightest points in the images).
 
-And here's the result: 
+Did you find it?
+
+It turns out the brightest points are the nodes themselves, which make sense. If 5 lines share a node and are drawn with intensity of red 30, the node will have intensity of red 150.  What this means for our algorithm is that nodes are peaking out early--once a couple lines are drawn from a node, the pixel under the node itself will register as being fully drawn and no lines will be able to be drawn from that node anymore. This occurs even if there are many good lines around the node waiting to be drawn. This is easy to solve: we just change the "decreasePixelsInPlace" function to only decrease the pixels _between_ nodes. The result changes instantly:
+
+Left: Weighted random radius and same settings as before.  Right: Weighted random radius and original (sparse) grid.
+
+![Little doggy woggy]({{ site.url }}/img/connected-dense.png)
+![Little doggy woggy]({{ site.url }}/img/connected-sparse.png)
+
+Sweet! This tiny change makes the algorithm effectively fill out most of the edges of the graph and give it a very smooth appearance. We can even use our smaller grid from before and still have a very cohesive portrait of the dog.   
+
+Another cool thing is that this small fix sped up the algorithm considerably as well--these render in 2-3 seconds as opposed to the 30+ seconds it was taking before!
+
 
 
 ###In the next installment:
