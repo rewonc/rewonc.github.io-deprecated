@@ -41,7 +41,11 @@ var CMYKtoRGB = function(obj){
 
 {% endhighlight %}
 
-Here's the result:
+Here's the result. Changed the photo to one with a light background so it draws the foreground.
 
 ![Little doggy woggy]({{ site.url }}/img/dogCMYK.png)
+
+
+Ok. That's more realistic.  But another huge problem is that in real life, colors don't add by stacking on each other. Two red lines stacked on top of each other don't become a darker red---they stay the same color. In our model, however, they do stack on each other and eventually turn black.  If you look at [Yamashita's artwork](http://www.kumiyamashita.com/constellation/), she creates the appearance of darker areas by grouping lines closer together, and the appearance of lightness by having a sparse distribution of lines. We need to do the same in our algorithm, and it's probably going to require a heavy refactoring. 
+
 
