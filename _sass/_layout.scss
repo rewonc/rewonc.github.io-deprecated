@@ -167,6 +167,7 @@
 
 .page-heading {
     font-size: 20px;
+    font-weight:bolder;
 }
 
 .post-list {
@@ -184,11 +185,48 @@
 }
 
 .post-link {
-    display: block;
-    font-size: 24px;
+    display:block;
+    font-size: 18px;
+}
+.snippet-list{
+    margin-left:0;
+    list-style:none;
+    > li {
+        margin-bottom:10px;
+    }
+}
+.project-list {
+    margin-left: 0;
+    list-style: none;
+    > li {
+        margin-bottom: $spacing-unit;
+    }
+    h2{
+        margin-bottom:0px;
+    }
 }
 
+.project-meta {
+    font-size: $base-font-size;
+    color: $grey-color;
+}
 
+.project-link {
+    display: block;
+    font-size: 16px;
+}
+.project-link-pending {
+    display: block;
+    color:lighten($grey-color, 10%);
+    font-size: 16px;
+    cursor:cursor;
+}
+.project-link-pending:hover {
+    display: block;
+    color:lighten($grey-color, 10%);
+    font-size: 16px;
+    text-decoration:none;
+}
 
 /**
  * Posts

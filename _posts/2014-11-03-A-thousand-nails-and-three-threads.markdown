@@ -5,29 +5,30 @@ date:   2014-11-03 07:05:06
 categories: update
 ---
 
-Some time ago I came across the "Constellation" pieces by artist Kumi Yamashita and couldn't forget them. Check out her [online gallery](http://www.kumiyamashita.com/constellation/) to see what I mean--they're incredible. Taking a white board, thousands of small nails, and a single sewing thread, she weaves portraits of people around her by weaving the thread between the nails. The components are simple but the result is nuanced, fluid, organic, and lifelike. 
+Some time ago I came across the "Constellation" pieces by artist Kumi Yamashita. Check out her [online gallery](http://www.kumiyamashita.com/constellation/) if you haven't seen them--they're incredible. She takes a white board, thousands of small nails, and a single sewing thread and weaves incredibly lifelike portraits. The components are simple but the result is nuanced and organic.
 
-It just so happens that a few weeks ago I moved into a huge loft in Emeryville. Being a former airplane engine manufacturing plant, the loft has towering walls that cry out, _put art on me!_. Now ordinarily in furnishing a loft's walls one either needs to have the money to purchase art or needs to have the intution, perseverance, and raw artistic ability that characterize someone like Kumi Yamashita to create the art. 
+I recently moved into a loft apartment in Emeryville and, having large walls, felt a need to put up some art. I lack both artistic talent and money so normally this would not be possible, but something about the Yamashita pieces spoke to me. "You could probably code up an algorithm in Javascript that would replicate us," they said.  
 
-I turn out to have none of those things, but I know Javascript, which has followed [Atwood's Law](http://blog.codinghorror.com/the-principle-of-least-power/) for the most part and now can be used for most tasks a programmer would like to accomplish.  So I thought, why not try and generate some fine art using Javascript?
+I of course mean in no way to suggest that a mere algorithm could replicate Yamashita's artistic talent and perseverance in making these portraits.  Rather, I mean to say that Javascript has been adapted to do [most things a programmer would like to accomplish](http://blog.codinghorror.com/the-principle-of-least-power/) reasonably well, so why not give a programmer's crack at fine art?
 
-So that was my programming assignment for the last week. Create a script that would analyze an image and output instructions for recreating it in real life with nails and thread a la Yamashita. And also, why not do it in color, too?
+So that was my programming assignment for last week. Create a script to analyze an image and output instructions for recreating it in real life with nails and thread a la Yamashita. And also, why not do it in color, too?
 
-This seemed like a project that would turn out to be much harder than I originally anticipated, but I decided to do it anyway. This post details the algorithm I came up with. The physical construction of the piece will be detailed in a following post. 
+This seemed like a project that would turn out to be much harder than I originally anticipated, but I decided to do it anyway. This post details the first algorithm I came up with. Adjustments to that algorithm and the physical construction of the piece come later.
 
 ##Tools
 
-HTML5 Canvas actually has a couple very useful methods for us:   [getImageData]( https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#getImageData ) and [putImageData](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#putImageData )
+I want to exclusively use Javascript, because why not, right? That's possible with HTML5 Canvas, which has all the image manipulation tools we need:   [getImageData]( https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#getImageData ) and [putImageData](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#putImageData ).
 
-These are getters and setters for the ImageData property of the HTML canvas. They return an array that has the red, green, blue, and alpha (opacity) value for each pixel in the image. This allows us to create a model of the image as an array and run any operations we might want on it (for example, drawing a thread), then push it back to the canvas to render. Sounds like just what we need to complement our plain ol' Javascript toolkit.
+GetImageData returns an array that has the red, green, blue, and alpha (opacity) value for each pixel in the image. All we need to do is manipulate that with our Javascript program then push it back to the canvas with putImageData to visualize our result. 
 
 ##First approach
 
-I figured I would first go with the simplest, most naive approach I could think of then optimize later. Here's the non-functional pseudocode of what I came up with:
+I figured I would first go with the simplest, most naive approach I could think of then optimize later. Here's the pseudocode of what I came up with:
 
 {% highlight javascript %}
 
 var pixels = getRGB("path/to/img.jpg");
+//Lets just make a square grid of nails
 var grid = generateSimpleRectangularNailGrid({width: 30, height: 54});
 var canvas = document.getElementById("canvas");
 
@@ -60,7 +61,7 @@ drawColor("blue", MAX_LINES_DRAWN_PER_THREAD);
 
 If you just skipped over the code, the basic gist is that it chooses a point on the grid at random for the origin, then randomly guesses another point until it finds one that is valid to draw. Once it finds a valid point, it draws a line to that point, then repeats. If it can't find a valid point, it chooses another one at random.
 
-What is a valid line? For a line to be valid, it needs to have two endpoints (nodes on the grid) and all the pixels in between those endpoints must have red, green or blue values higher than the STROKE_INTENSITY value.  Make sense?  So, if you have a stroke intensity of 64 and are drawing "red", the algorithm will only draw in places where all the pixels underneath have at least a value of 64 for red. 
+What is a valid line? For a line to be valid, it needs to have two endpoints (nodes on the grid) and all the pixels in between those endpoints must have red, green or blue values higher than the STROKE_INTENSITY value. So, if you have a stroke intensity of 64 and are drawing "red", the algorithm will only draw in places where all the pixels underneath have at least a value of 64 for red. 
 
 Here's what this algorithm draws when applied to an image of... can you guess?
 
@@ -71,9 +72,9 @@ Did you guess... some kind of animal, wearing a bow? A puppy perhaps? Good job! 
 
 ![Little doggy woggy source]({{site.url}}/img/doggysrc.png)
 
-Not bad for a totally random algorithm. I let it run for about a minute or two before stopping it. Here's some things I learned from implementing this simple algorithm:
+Not bad for a totally random algorithm. Here's some things I learned from implementing this simple algorithm:
 
-* It didn't actually complete. It only drew 1403 lines before I stopped it. The random search method drew lots of lines initially but slowed down around the ~1000 mark. As it only did ~1400 lines in about a minute, I'd say we have quite a few optimizations we could make.
+* It didn't actually complete. It only drew 1403 lines before I stopped it, which was around a minute in--very slow! The random search method drew lots of lines initially but slowed down around the ~1000 mark. As it only did ~1400 lines in about a minute, I'd say we have quite a few optimizations we could make.
 
 * Even though there's only 1403 lines, which represents a tiny fraction of the information in the image, the dog is still recognizable for the most part. This means we probably don't need to draw _all_ the image information to get a good enough representation of it.
 
@@ -143,8 +144,6 @@ One thing you might notice about the above lines is that they are often unconnec
 
 Take a look at the above renderings and see if you can figure out why this happens. It's very subtle. (Hint: try looking for the brightest points in the images).
 
-Did you find it?
-
 It turns out the brightest points are the nodes themselves, which make sense. If 5 lines share a node and are drawn with intensity of red 30, the node will have intensity of red 150.  What this means for our algorithm is that nodes are peaking out and returning "false" early. This forces our algorithm to begin a totally new line even if many more lines might be able to be drawn from that node. As a result, it needs to spend extra cycles calculating a random start (expensive) & there appears an ugly disconnected stroke on the rendering. 
 
 This is easy to solve: we just change the "decreasePixelsInPlace" function to only decrease the pixels _between_ nodes. The result changes instantly:
@@ -158,28 +157,17 @@ Sweet! This tiny change makes the algorithm effectively fill out most of the edg
 
 Another cool thing is that this small fix sped up the algorithm considerably as well--these render in 2-3 seconds as opposed to the ~minute it was taking before!
 
-### More tinkering
-
-
-
-
 ### In the next installment:
 
-At this point, I think the algorithm is good enough to give a first shot on a canvas at my home. That's what I cover in the next installment:
+This is not quite ready yet for converting to a real life canvas. There's a few things left to do:
 
-- Adjusting from RGB to real life conditions
+- Adjust from RGB to real life subtractive color schemes (i.e. CMYK)
 
-- Estimating stroke intensities and color profiles of real strings
+- Change darkness estimate to an area average (Yamashita's lines don't overap but rather are spaced together closely)
 
-- Constructing an appropriate canvas, and...
+- And, of course, physically construct the canvas. 
 
-- The finished product. (I use a different img than this puppy :)  )
-
-### Next directions for the algorithm
-
-There's a whole slew of other interesting directions to take the algorithm.  Right now we're just using a simple rectangular grid to hold our lines. That's easy to model in code and also easy to replicate on a physical canvas.  But a more sophisticated algorithm might get even closer to the quality that Yamashita was able to produce by having the grid adjust to the image itself. For example, having the algorithm analyze the local maxima & minima of the image through gradient descent or other methods might yield a way to have the nails sit on the points of starkest contrast. In Yamashita's examples, she places the nails on a line that edge the face; in our doggy example, it might be worthwhile to have the nails trace the edge of the fur.
-
-I'll explore this and a few other topics in a later post, but if you have any thoughts on either of these, [let me know](mailto:rewonc@gmail.com)!
+I'll explore this and a few other topics in a later post, but if you have any thoughts or comments, [let me know](mailto:rewonc@gmail.com)!
 
 
 
