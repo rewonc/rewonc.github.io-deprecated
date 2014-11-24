@@ -7,17 +7,17 @@ categories: update
 
 Some time ago I came across the "Constellation" pieces by artist Kumi Yamashita. Check out her [online gallery](http://www.kumiyamashita.com/constellation/) if you haven't seen them--they're incredible. She takes a white board, thousands of small nails, and a single sewing thread and weaves incredibly lifelike portraits. The components are simple but the result is nuanced and organic.
 
-I recently moved into a loft apartment in Emeryville and, having large walls, felt a need to put up some art. I lack both artistic talent and money so normally this would not be possible, but something about the Yamashita pieces spoke to me. "You could probably code up an algorithm in Javascript that would replicate us," they said.  
+I wanted to recreate something in Yamashita's style in my own apartment. I lack both artistic talent and money so normally this would not be possible, but something about the Yamashita pieces suggested to me that I might try programming an algorithm that would spit out instructions to create a piece in real life. 
 
-I of course mean in no way to suggest that a mere algorithm could replicate Yamashita's artistic talent and perseverance in making these portraits.  Rather, I mean to say that Javascript has been adapted to do [most things a programmer would like to accomplish](http://blog.codinghorror.com/the-principle-of-least-power/) reasonably well, so why not give a programmer's crack at fine art?
+I of course mean in no way to suggest that a mere algorithm could replicate Yamashita's artistic talent and perseverance in making these portraits.  Rather, I mean to say that Javascript has been adapted to do [most things a programmer would like to accomplish](http://blog.codinghorror.com/the-principle-of-least-power/) reasonably well, so why not fine art, too?
 
-So that was my programming assignment for last week. Create a script to analyze an image and output instructions for recreating it in real life with nails and thread a la Yamashita. And also, why not do it in color, too?
+That was my assignment for last week. Create a script to analyze an image and output instructions for recreating it in real life with nails and thread a la Yamashita. And also, why not do it in color while we're at it?
 
 This seemed like a project that would turn out to be much harder than I originally anticipated, but I decided to do it anyway. This post details the first algorithm I came up with. Adjustments to that algorithm and the physical construction of the piece come later.
 
 ##Tools
 
-I want to exclusively use Javascript, because why not, right? That's possible with HTML5 Canvas, which has all the image manipulation tools we need:   [getImageData]( https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#getImageData ) and [putImageData](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#putImageData ).
+With HTML5 Canvas's  [getImageData]( https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#getImageData ) and [putImageData](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#putImageData ), we have all the tools we need with plain old Javascript. 
 
 GetImageData returns an array that has the red, green, blue, and alpha (opacity) value for each pixel in the image. All we need to do is manipulate that with our Javascript program then push it back to the canvas with putImageData to visualize our result. 
 
@@ -167,7 +167,7 @@ This is not quite ready yet for converting to a real life canvas. There's a few 
 
 - And, of course, physically construct the canvas. 
 
-I'll explore this and a few other topics in a later post, but if you have any thoughts or comments, [let me know](mailto:rewonc@gmail.com)!
+[Go to the next post](http://rewonc.github.io/update/2014/11/06/A-thousand-nails-and-three-threads-2.html)
 
 
 
