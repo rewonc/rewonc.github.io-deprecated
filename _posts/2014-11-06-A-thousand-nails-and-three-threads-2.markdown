@@ -59,10 +59,19 @@ We can do this programmatically by averaging the color density in an area, then 
 
 ![Clint]({{ site.url }}/img/clint-wide.png)
 
-Did you guess Clint Eastwood? If so, hooray! In this version, the colors overwrite each other and do not add to a different color (like in real life). Instead, we generate darker areas by drawing more lines in that area. Thus, this portrait is made entirely of 4 base colors (cyan, yellow, magenta, and key (black)).  Yet, if you blur your vision or look at the image from afar, Clint's face looks flesh colored and his hair kind of silvery white. Neato.
+Did you guess Clint Eastwood? If so, hooray! In this version, the colors overwrite each other and do not add to create different colors (which is also what happens in in real life). Instead, we generate darker areas by drawing more lines in that area. We generate the appearance of different colors by having different colored strings in close proximity, [like in pointillism](http://en.wikipedia.org/wiki/Pointillism).
+
+This portrait is made entirely of 4 base colors (cyan, yellow, magenta, and black), yet if you blur your vision or look at the image from afar, Clint's face looks flesh colored and his hair kind of silvery white. Neato.
 
 ##Optimizing for connected lines
 
+One further optimization we can make is searching on both sides of a line segment for potential connections. Currently, the algorithm only searches from one side. If we search from both sides, we potentially reduce the number of separate strings we have to deal with, which will make the rendering of the portrait easier.
+
+(**left**: no extra optimization, **right**: with optimization)
+![Clint]({{ site.url }}/img/clint-wide.png)
+![Clint]({{ site.url }}/img/clint--conn-wide-2-rad.png)
+
+This doesn't look like it's different, but it's actually reduced the number of separate lines in this portrait by around ~400. 
 
 ##Dynamic adjustment of nodes
 
