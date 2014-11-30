@@ -69,12 +69,27 @@ One further optimization we can make is searching on both sides of a line segmen
 
 (**left**: no extra optimization, **right**: with optimization)
 
-![Clint]({{ site.url }}/img/clint-wide.png)
-![Clint]({{ site.url }}/img/clint--conn-wide-2-rad.png)
+<img src="{{ site.url }}/img/clint-wide.png" alt="Drawing" style="width: 300px;"/>
+<img src="{{ site.url }}/img/clint--conn-wide-2-rad.png" alt="Drawing" style="width: 300px;"/>
 
-This doesn't look like it's different, but it's actually reduced the number of separate lines in this portrait by around ~400. 
+This doesn't look like it's different, but it's actually reduced the number of separate lines in this portrait by around ~400. This should reduce the complexity of realizing the portrait with physical items.
 
 ##Dynamic adjustment of nodes
+
+Finally, we should think about adjusting the node location.  Originally we chose a square grid for the sole purpose of making things simple, but it has impeded the rendering quality of our images in some ways. Items with well defined edges, for example, rarely match up exactly with the grid and that can result in a pixellated image in some cases.
+
+Right now the node resides at the top left corner of each square in the grid. What we will do here is apply a function to each node that will allow it to choose a different point in each square.  For now, we will use a function that selects the darkest node in each square.  
+
+For a graph of nodes, this will cluster nodes together in dark regions of the image and space them out in light regions of the image. If you look at Yamashita's works, this is exactly what we want.  Here's our node spacing algorithm applied to our photo of Clint above:
+
+(**left**: No spacing function, **right**: Spacing function applied to the same image)
+<img src="{{ site.url }}/img/clint--conn-wide-2-rad.png" alt="Drawing" style="width: 300px;"/>
+<img src="{{ site.url }}/img/clint--conn-2-rad-nodes.png" alt="Drawing" style="width: 300px;"/>
+
+All right! You can see that nodes have clustered around the dark areas (eyes especially) and have renderred them narrower -- which is how Clint's squinty look appears in real life. Also, the "grid" look of the former image has completely disappeared, as the nodes have shifted themselves off the linear grid. Overall, the face looks quite a bit smoother.
+
+Our program can now tell us exactly what steps we need to construct this image in real life. The first real life image I create with this will be displayed in the next post. 
+
 
 
 
