@@ -15,7 +15,7 @@ Like printing, for our project we should assume that the background is white and
 
 {% highlight javascript %}
 
-var RGBtoCMYK = function(obj){
+Helpers.RGBtoCMYK = function(obj){
   var red = obj.red/255,
     green = obj.green/255,
      blue = obj.blue/255,  
@@ -31,7 +31,7 @@ var RGBtoCMYK = function(obj){
   }
 };
 
-var CMYKtoRGB = function(obj){
+Helpers.CMYKtoRGB = function(obj){
   return {
     red: 255 * (1-obj.c) * (1-obj.k),
     green: 255 * (1-obj.m) * (1-obj.k),
@@ -45,7 +45,14 @@ Here's the result. Changed the photo to one with a light background so it draws 
 
 ![Little doggy woggy]({{ site.url }}/img/dogCMYK.png)
 
+This isn't that impressive, but at least it's drawing colors that we can recreate in real life now.  
 
-Ok. That's more realistic.  But another huge problem is that in real life, colors don't add by stacking on each other. Two red lines stacked on top of each other don't become a darker red---they stay the same color. In our model, however, they do stack on each other and eventually turn black.  If you look at [Yamashita's artwork](http://www.kumiyamashita.com/constellation/), she creates the appearance of darker areas by grouping lines closer together, and the appearance of lightness by having a sparse distribution of lines. We need to do the same in our algorithm, and it's probably going to require a heavy refactoring. 
+Another huge problem with our model is that in real life, colors don't add by stacking on each other. Two red lines stacked on top of each other don't become a darker red---they stay the same color. In our model, however, they do stack on each other and become darker. Pixels that are painted multiple times turn black.
+
+Compare this with [Yamashita's artwork](http://www.kumiyamashita.com/constellation/). She creates the appearance of darker areas by grouping lines closer together, and the appearance of lightness by having a sparse distribution of lines. We need to do the same in our algorithm. We do this in the algorithm by averaging the color density in an area, then only allowing a certain number of lines to be drawn in that area. Ditching the animal theme, here's what we get when we apply this algorithm to a famous human:
+
+
+
+
 
 

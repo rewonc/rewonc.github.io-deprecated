@@ -13,8 +13,6 @@ I of course mean in no way to suggest that a mere algorithm could replicate Yama
 
 That was my assignment for last week. Create a script to analyze an image and output instructions for recreating it in real life with nails and thread a la Yamashita. And also, why not do it in color while we're at it?
 
-This seemed like a project that would turn out to be much harder than I originally anticipated, but I decided to do it anyway. This post details the first algorithm I came up with. Adjustments to that algorithm and the physical construction of the piece come later.
-
 ##Tools
 
 With HTML5 Canvas's  [getImageData]( https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#getImageData ) and [putImageData](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D#putImageData ), we have all the tools we need with plain old Javascript. 
@@ -23,45 +21,47 @@ GetImageData returns an array that has the red, green, blue, and alpha (opacity)
 
 ##First approach
 
-I figured I would first go with the simplest, most naive approach I could think of then optimize later. Here's the pseudocode of what I came up with:
+I figured I would first go with the simplest, most naive approach I could think of then optimize later. Here's the pseudocode of what I came up with: 
 
 {% highlight javascript %}
 
-var pixels = getRGB("path/to/img.jpg");
-//Lets just make a square grid of nails
-var grid = generateSimpleRectangularNailGrid({width: 30, height: 54});
+var pixels = Helpers.getRGB("path/to/img.jpg");
+// Generate a graph to represent a simple square grid of nails.
+// Nails become nodes. Lines become edges. 
+var graph = new Graph(pixels, {width: 30, height: 54});
 var canvas = document.getElementById("canvas");
+ 
+// Define some "threads"
+var LINE_INTENSITY = 64;
+var threads = [
+  {name: "red", r: LINE_INTENSITY, g: 0, b: 0},
+  {name: "green", r: 0, g: LINE_INTENSITY, b: 0},
+  {name: "blue", r: 0, g: 0, b: LINE_INTENSITY},
+];
 
-//Set a maximum limit corresponding to what a human could draw in a couple weeks
-var MAX_LINES_DRAWN_PER_THREAD = 1500; 
-//Set the "stroke intensity"--on a scale of 0 to 255, how intensely red, green, or blue will each stroke be?
-var STROKE_INTENSITY = 64;
-
-var drawColor = function(color, countdown, next){
-  if (countdown <= 0 ) return;
-  var origin = next || Grid.getRandom(grid);
-  var line = RandomlyFindAValidNextLine(grid, pixels, STROKE_INTENSITY);
-  if (typeof line === "number")  {
-    addToGrid(line, grid);
-    renderNewLineOnCanvas(line, canvas, STROKE_INTENSITY);
-    decreasePixelsInPlace(line, pixels, STROKE_INTENSITY);
-    return drawColor(color, count - 1, line.end);    
-  } else {
-    return drawColor(color, count);
+var drawNextLine = function (graph, thread, previous, count) {
+  if (count < 0) return;
+  previous = previous || graph.getRandomNode();
+  result = graph.getNextValidNodeRandomly(previous, thread);
+  if (result.node !== undefined) {
+    graph.addEdge(origin, result.node, thread);
+    graph.decrement(result.line, thread);
+    return drawNextLine(graph, thread, result.node, count - 1)
   }
-}
+  return drawNextLine(graph, thread, count - 1);
+};
 
-drawColor("red", MAX_LINES_DRAWN_PER_THREAD);
-drawColor("green", MAX_LINES_DRAWN_PER_THREAD);
-drawColor("blue", MAX_LINES_DRAWN_PER_THREAD);
+drawNextLine(graph, thread[0]);
+drawNextLine(graph, thread[1]);
+drawNextLine(graph, thread[2]);
 
 {% endhighlight %}
 
-[The repo with the functional source code for the entire project is available here](https://github.com/rewonc/nailsandthread) 
+[The repo with helper functions and working source code is available here](https://github.com/rewonc/nailsandthread) 
 
-If you just skipped over the code, the basic gist is that it chooses a point on the grid at random for the origin, then randomly guesses another point until it finds one that is valid to draw. Once it finds a valid point, it draws a line to that point, then repeats. If it can't find a valid point, it chooses another one at random.
+If you just skipped over the code, it basically chooses a point on the graph at random for the origin, then randomly guesses another point until it finds one that is valid to draw. Once it finds a valid point, it draws a line to that point, then repeats. If it can't find a valid point, it chooses another one at random.
 
-What is a valid line? For a line to be valid, it needs to have two endpoints (nodes on the grid) and all the pixels in between those endpoints must have red, green or blue values higher than the STROKE_INTENSITY value. So, if you have a stroke intensity of 64 and are drawing "red", the algorithm will only draw in places where all the pixels underneath have at least a value of 64 for red. 
+What is a valid line? For a line to be valid, it needs to have two endpoints (nodes on the graph) and all the pixels in between those endpoints must have red, green or blue values higher than the LINE_INTENSITY value. So, if you have a stroke intensity of 64 and are drawing "red", the algorithm will only draw in places where all the pixels underneath have at least a value of 64 for red. 
 
 Here's what this algorithm draws when applied to an image of... can you guess?
 
@@ -72,13 +72,13 @@ Did you guess... some kind of animal, wearing a bow? A puppy perhaps? Good job! 
 
 ![Little doggy woggy source]({{site.url}}/img/doggysrc.png)
 
-Not bad for a totally random algorithm. Here's some things I learned from implementing this simple algorithm:
+Not bad for a totally random algorithm. The algorithm only drew 1400 lines and contains only a fraction of the information in the image, but you can still tell it's a dog. But we can do better on some points:
 
-* It didn't actually complete. It only drew 1403 lines before I stopped it, which was around a minute in--very slow! The random search method drew lots of lines initially but slowed down around the ~1000 mark. As it only did ~1400 lines in about a minute, I'd say we have quite a few optimizations we could make.
-
-* Even though there's only 1403 lines, which represents a tiny fraction of the information in the image, the dog is still recognizable for the most part. This means we probably don't need to draw _all_ the image information to get a good enough representation of it.
+* This is pretty slow -- it took around a minute to draw the above.
 
 * It looks pretty polygonal, and it doesn't seem to do very well with edges. 
+
+* A lot of the lines aren't connected, which would make real life rendering difficult.
 
 Ok, that's a good list of stuff to begin improving.
 
@@ -91,9 +91,9 @@ So as we didn't actually reach our target of successfully drawn lines, an easy w
 {% highlight javascript %}
 
 //double the dimensions of our grid (4x more nodes)
-var grid = generateSimpleRectangularNailGrid({width: 60, height: 108});
-//Halve the strength of the stroke
-var STROKE_INTENSITY = 32;
+var graph = new Graph(pixels, {width: 30 * 2, height: 54 * 2});
+//Halve the line intensity
+var LINE_INTENSITY = 32;
 
 {% endhighlight %}
 
@@ -106,16 +106,13 @@ Here's the results from that (**left**: before, **right**: after).  This time, i
 Ok, getting better, although now it looks like some kid scribbled with crayons all over the paper. Oh well, let's move on, keeping in mind that we now can adjust the number of nodes and stroke intensity to adjust the quantity of lines drawn. 
 
 ### Manipulating the angle of lines drawn
-Compared with [Yamashita's originals](http://www.kumiyamashita.com/constellation/), the average line length in our current portrait is long.  Yamashita generally seems to pass the thread between adjacent nodes rather than across the grid. When we sample for points, however, we're choosing the whole range of points and often get long lines that traverse the picture and make it look "scribbly." Let's see if we can't adjust that:
+Compared with [Yamashita's originals](http://www.kumiyamashita.com/constellation/), the average line length in our current portrait is long.  Yamashita generally seems to pass the thread between adjacent nodes rather than across the grid. When we sample for points, however, we're choosing the whole range of points and often get long lines that traverse the picture and make it look "scribbly." Let's change the sampling function to one that chooses from a radius instead:
 
 {% highlight javascript %}
-//radius refers to the maximum distance of nodes you will sample from the origin. 
-//For example, putting 1 for a node in the middle of a grid will return the 9 nodes surrounding it.
-var radius = 1;
-var list = findNodesAdjacentTo(origin, grid, radius, color);
-var next = _.find(list, validatePoint);
-if (next !== undefined) { /* draw & recur */ }
-else                    { /* Start over */}
+//function drawNextLine
+var radius = 2;
+result = graph.getValidNodeWithinRadius(previous, thread, radius);
+
 {% endhighlight %}
 
 Here's what we get from sampling from a variable radius:
@@ -135,18 +132,17 @@ Radius **3** & **5**:
 ![Little doggy woggy]({{ site.url }}/img/anglemax.png)
 ![Little doggy woggy]({{ site.url }}/img/anglerandom.png)
 
-
-Kind of neat!  It turns out that in our square grid of nails, changing the sampling radius changes the angle of all possible values that can be drawn. In a radius of 1, for example, we see only straight lines and 45 degree angles, and the result almost looks like a mosaic. In the max radius, you get hundreds of slightly different angles that make the dog look kind of spooky or phantasmic. It seems like somewhere in the middle is a nice balance between 1) long & short lines and 2) angle consistency and diversity.
+It turns out that in our square grid of nails, changing the sampling radius changes the angle of all possible values that can be drawn. In a radius of 1, for example, the algorithm only chooses points from the surrounding 9, which results in only straight lines and 45 degree angles. This looks kind of mosaic-like. In the max radius, you get hundreds of slightly different angles that make the dog look kind of spooky or phantasmic. It seems like somewhere in the middle is a nice balance between 1) long & short lines and 2) angle consistency and diversity.
 
 ### Increasing line connectivity
 
-One thing you might notice about the above lines is that they are often unconnected. In other words, often times the algorithm will fail to find a valid next point and start a new random thread instead of continuing the old one. This results in many one-off lines and abrupt endings, which impact the clarity of the image.
+One thing you might notice about the above lines is that they are often unconnected. In other words, often times the algorithm will fail to find a valid next point and start a new random thread instead of continuing the old one. This results in many one-off lines and abrupt endings, which impact the clarity of the image and make it harder to draw.
 
-Take a look at the above renderings and see if you can figure out why this happens. It's very subtle. (Hint: try looking for the brightest points in the images).
+Take a look at the above renderings and see if you can figure out why this happens. It's very subtle. (Hint: try looking for the brightest points in the images, which are the ones drawn the most frequently).
 
-It turns out the brightest points are the nodes themselves, which make sense. If 5 lines share a node and are drawn with intensity of red 30, the node will have intensity of red 150.  What this means for our algorithm is that nodes are peaking out and returning "false" early. This forces our algorithm to begin a totally new line even if many more lines might be able to be drawn from that node. As a result, it needs to spend extra cycles calculating a random start (expensive) & there appears an ugly disconnected stroke on the rendering. 
+It turns out the brightest points are the nodes themselves. If 5 lines share a node and are drawn with intensity of red 30, the node will have intensity of red 150 whereas the surrounding pixels will have an intensity of 30.  What this means for our algorithm is that nodes are peaking out and returning "false" early. This forces our algorithm to begin a totally new line even if many more lines might be able to be drawn from that node. 
 
-This is easy to solve: we just change the "decreasePixelsInPlace" function to only decrease the pixels _between_ nodes. The result changes instantly:
+This is easy to solve. We just change our drawing function so that it only paints pixels _between_ nodes. The result changes instantly:
 
 **Left**: Same settings with the "random radius" function.  **Right**: Weighted random radius and original (sparse) grid.
 
@@ -157,15 +153,15 @@ Sweet! This tiny change makes the algorithm effectively fill out most of the edg
 
 Another cool thing is that this small fix sped up the algorithm considerably as well--these render in 2-3 seconds as opposed to the ~minute it was taking before!
 
-### In the next installment:
+### In the next post:
 
-This is not quite ready yet for converting to a real life canvas. There's a few things left to do:
+There's still some work left to do. 
 
-- Adjust from RGB to real life subtractive color schemes (i.e. CMYK)
+- Adjust from RGB (additive) to real life subtractive color schemes (i.e. CMYK)
 
-- Change darkness estimate to an area average (Yamashita's lines don't overap but rather are spaced together closely)
+- Model color intensity through area averages rather than pixel intensity.
 
-- And, of course, physically construct the canvas. 
+- Physically construct the canvas
 
 [Go to the next post](http://rewonc.github.io/update/2014/11/06/A-thousand-nails-and-three-threads-2.html)
 
