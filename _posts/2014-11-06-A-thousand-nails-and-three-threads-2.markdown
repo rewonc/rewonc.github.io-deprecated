@@ -68,6 +68,7 @@ This portrait is made entirely of 4 base colors (cyan, yellow, magenta, and blac
 One further optimization we can make is searching on both sides of a line segment for potential connections. Currently, the algorithm only searches from one side. If we search from both sides, we potentially reduce the number of separate strings we have to deal with, which will make the rendering of the portrait easier.
 
 (**left**: no extra optimization, **right**: with optimization)
+
 ![Clint]({{ site.url }}/img/clint-wide.png)
 ![Clint]({{ site.url }}/img/clint--conn-wide-2-rad.png)
 
