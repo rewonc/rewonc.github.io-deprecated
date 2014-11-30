@@ -47,7 +47,7 @@ Here's the result. Changed the photo to one with a light background so it draws 
 
 ![Little doggy woggy]({{ site.url }}/img/dogCMYK.png)
 
-This isn't that impressive, but at least it's drawing colors that we can recreate in real life now.  
+This is a dog again, if you can't tell. This isn't that impressive, but at least it's drawing colors that we can recreate in real life now.  
 
 ##Switching to area averages for estimating darkness
 
@@ -59,9 +59,14 @@ We can do this programmatically by averaging the color density in an area, then 
 
 ![Clint]({{ site.url }}/img/clint-wide.png)
 
-Did you guess Clint Eastwood? If so, hooray! In this version, the colors overwrite each other and do not add to a different color (like in real life). Instead, we generate darker areas by drawing more lines in that area. Thus, this portrait is only made of 4 base colors (cyan, yellow, magenta, and key (black)).  Yet, if you blur your vision or look at the image from afar, Clint's face looks flesh colored and his hair kind of silvery white. Neato.
+Did you guess Clint Eastwood? If so, hooray! In this version, the colors overwrite each other and do not add to a different color (like in real life). Instead, we generate darker areas by drawing more lines in that area. Thus, this portrait is made entirely of 4 base colors (cyan, yellow, magenta, and key (black)).  Yet, if you blur your vision or look at the image from afar, Clint's face looks flesh colored and his hair kind of silvery white. Neato.
 
-##More optimizations
+##Optimizing for connected lines
+
+
+##Dynamic adjustment of nodes
+
+
 
 
 
