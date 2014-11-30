@@ -11,6 +11,8 @@ In the [last post](http://rewonc.github.io/update/2014/11/03/A-thousand-nails-an
 
 So this looks kind of neat, but isn't ready to be converted to a canvas just yet. The most significant problem is that the color of threads in real life do not combine like the colors on a screen. The RGB color scale is _additive_, which usually is used for the LED's in your screen because red, green, and blue light firing at 100% creates white light. But in real life we're using threads, which when combined in close quarters actually block out white light and appear grayish black. It's _subtractive_, in other words, and the most common subtractive scale is CMYK. This is what laserjet printers use. 
 
+##Switching to a subtractive color scheme
+
 Like printing, for our project we should assume that the background is white and that each line layered on top will subtract from that light. We can do this by writing an adapter between RGB and CMYK values and inserting it in the layer between our image file and our processing algorithms. Then, we will change our algorithm to write lines in CMYK instead of RGB. 
 
 {% highlight javascript %}
@@ -47,9 +49,21 @@ Here's the result. Changed the photo to one with a light background so it draws 
 
 This isn't that impressive, but at least it's drawing colors that we can recreate in real life now.  
 
+##Switching to area averages for estimating darkness
+
 Another huge problem with our model is that in real life, colors don't add by stacking on each other. Two red lines stacked on top of each other don't become a darker red---they stay the same color. In our model, however, they do stack on each other and become darker. Pixels that are painted multiple times turn black.
 
-Compare this with [Yamashita's artwork](http://www.kumiyamashita.com/constellation/). She creates the appearance of darker areas by grouping lines closer together, and the appearance of lightness by having a sparse distribution of lines. We need to do the same in our algorithm. We do this in the algorithm by averaging the color density in an area, then only allowing a certain number of lines to be drawn in that area. Ditching the animal theme, here's what we get when we apply this algorithm to a famous human:
+Compare this with [Yamashita's artwork](http://www.kumiyamashita.com/constellation/). She creates the appearance of darker areas by grouping lines closer together, and the appearance of lightness by having a sparse distribution of lines. We need to do the same in our algorithm. 
+
+We can do this programmatically by averaging the color density in an area, then only allowing a certain number of lines to be drawn in that area. [Check the repo for implementation details](https://github.com/rewonc/nailsandthread). Ditching the animal theme, here's what we get when we apply this methodology to a famous human:
+
+![Clint]({{ site.url }}/img/clint-wide.png)
+
+Did you guess Clint Eastwood? If so, hooray! In this version, the colors overwrite each other and do not add to a different color (like in real life). Instead, we generate darker areas by drawing more lines in that area. Thus, this portrait is only made of 4 base colors (cyan, yellow, magenta, and key (black)).  Yet, if you blur your vision or look at the image from afar, Clint's face looks flesh colored and his hair kind of silvery white. Neato.
+
+##More optimizations
+
+
 
 
 
