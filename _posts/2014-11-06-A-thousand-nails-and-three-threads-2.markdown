@@ -86,9 +86,11 @@ For a graph of nodes, this will cluster nodes together in dark regions of the im
 <img src="{{ site.url }}/img/clint--conn-wide-2-rad.png" alt="Drawing" style="width: 300px;"/>
 <img src="{{ site.url }}/img/clint--conn-2-rad-nodes.png" alt="Drawing" style="width: 300px;"/>
 
-All right! You can see that nodes have clustered around the dark areas (eyes especially) and have renderred them narrower -- which is how Clint's squinty look appears in real life. Also, the "grid" look of the former image has completely disappeared, as the nodes have shifted themselves off the linear grid. Overall, the face looks quite a bit smoother.
+All right! You can see that nodes have clustered around the dark areas (eyes especially) and have renderred them narrower -- which is how Clint's squinty look appears in real life. Also, the "grid" look of the former image has completely disappeared, as the nodes have shifted themselves off the linear grid. 
 
-Our program can now tell us exactly what steps we need to construct this image in real life. The first real life image I create with this will be displayed in the next post. 
+Note that the edges of Clint's face have now come into sharp relief. Additionally, the bright areas of his face appear a little shinier, as the nodes have shifted away from white areas and given them room to breathe. Overall the image looks much better. 
+
+*That's about it!* Our program can now tell us exactly what steps we need to follow to replicate this image in real life. The first result--in the next post!
 
 
 
