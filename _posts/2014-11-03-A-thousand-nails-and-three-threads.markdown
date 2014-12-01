@@ -46,7 +46,7 @@ var drawNextLine = function (graph, thread, previous, count) {
   if (result.node !== undefined) {
     graph.addEdge(origin, result.node, thread);
     graph.decrement(result.line, thread);
-    return drawNextLine(graph, thread, result.node, count - 1)
+    return drawNextLine(graph, thread, result.node, count - 1);
   }
   return drawNextLine(graph, thread, count - 1);
 };
